@@ -1,9 +1,4 @@
 import re
-
-import numpy as np
-
- 
-
 class RopeEnd:
     position = [0, 0]
 
@@ -25,17 +20,6 @@ class RopeEnd:
                 footprint.append([self.position[0] + x, self.position[-1] + y])
 
         return footprint
-
-def averagePositions(positions):
-    xPos = 0
-    yPos = 0
-
-    for position in positions:
-        xPos += position[0]
-        yPos += position[-1]
-
-    return [int(round(xPos/len(positions), 0)), int(round(yPos/len(positions), 0))]
-
 
 f = open("9/input.txt", "r")
 moves = []
@@ -62,6 +46,8 @@ for line in f:
 
 head = RopeEnd([0, 0])
 tail = RopeEnd([0, 0])
+visitedPositions = {"[0, 0]"}
+lastDirectionFromPosition = [0, 0]
 
 for move in moves:
     head.move(move)
@@ -69,26 +55,18 @@ for move in moves:
     headPosition = head.getPosition()
     tailPosition = tail.getPosition()
 
-    #overlappingPositions = []
+    for i in [0, -1]:
+            if headPosition[i] > tailPosition[i]:
+                lastDirectionFromPosition[i] = 1
+            elif headPosition[i] < tailPosition[i]:
+                lastDirectionFromPosition[i] = -1
+            else:
+                lastDirectionFromPosition[i] = 0
 
-    if headPosition not in tail.getFootprint():
-        xMove = int(round(0.5 * (tailPosition[0] - headPosition[0]), 0))
-        yMove = int(round(0.5 * (tailPosition[-1] - headPosition[-1]), 0))
+    if abs(headPosition[0] - tailPosition[0]) > 1 or abs(headPosition[-1] - tailPosition[-1]) > 1:
+        tail.move(lastDirectionFromPosition)
+        visitedPositions.add(str(tail.getPosition()))
 
-        tail.move([xMove, yMove])
-        #print(tail.getFootprint())
+    print("Head: " + str(head.getPosition()) + ", Tail: " + str(tail.getPosition()))
 
-        #for position in tail.getFootprint():
-
-        #    if position in head.getFootprint():
-
-        #        overlappingPositions.append(position)
-
-           
-
-        #print(averagePositions(overlappingPositions))
-
-        #tail.move(averagePositions(overlappingPositions))
-
-
-    print(tail.getPosition())
+print(len(visitedPositions))
